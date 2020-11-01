@@ -57,7 +57,9 @@
                          tibetan-composable-pattern
                          tibetan-precomposed-transcription-alist
                          tibetan-precomposition-rule-alist
-                         tibetan-vowel-transcription-alist)
+                         tibetan-vowel-transcription-alist
+                         ;; 7.2M, emacs 25.1 takes too long
+                         translation-table-vector)
                        sym-names)
             (setq sym-names (delete (symbol-name sym) sym-names))))
          (total (length sym-names))
