@@ -54,7 +54,7 @@ module.exports = (req, res) => {
       });
       return;
     }
-    res.setHeader("Cache-Control", `max-age=${3600 * 24} s-maxage=${3600 * 24 * 30}`);
+    res.setHeader("Cache-Control", `max-age=${3600 * 24}, s-maxage=${3600 * 24 * 30}`);
     res.status(200).json({
       "emacs-version": emacsVersion,
       data: data.data,
