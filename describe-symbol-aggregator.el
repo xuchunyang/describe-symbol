@@ -94,11 +94,13 @@
          (message "ERROR: %s, skip %s" (error-message-string err) name)
          (cl-incf skipped))))
     (with-current-buffer output-buffer
+      (goto-char (point-min))
+      (insert (format "{\"emacs-version\": \"%s\", \"timestamp\": %s, \"data\": [\n"
+                      emacs-version
+                      (format-time-string "%s")))
       (goto-char (point-max))
       (delete-char -2)
-      (insert "\n]")
-      (goto-char (point-min))
-      (insert "[\n")
+      (insert "\n]}")
       (write-region nil nil output-filename)
       (message "Wrote to %s" output-filename))
     (message "Total %d, Processed %d, Skipped %d, in %f seconds"
