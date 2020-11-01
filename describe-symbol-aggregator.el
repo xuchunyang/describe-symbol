@@ -89,7 +89,7 @@
                          (buffer-substring-no-properties (point-min) (point-max)))))))
               (with-current-buffer output-buffer
                 (goto-char (point-max))
-                (insert (funcall my-json-encode `((id . ,name)
+                (insert (funcall my-json-encode `((sym . ,name)
                                                   (doc . ,doc))))
                 (insert ",\n")))
             t)
