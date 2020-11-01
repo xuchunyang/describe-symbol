@@ -98,9 +98,10 @@
          (cl-incf skipped))))
     (with-current-buffer output-buffer
       (goto-char (point-min))
-      (insert (format "{\"emacs-version\": \"%s\", \"timestamp\": %s, \"data\": [\n"
+      (insert (format "{\"emacs-version\": \"%s\", \"timestamp\": %s, \"count\": %d, \"data\": [\n"
                       emacs-version
-                      (format-time-string "%s")))
+                      (format-time-string "%s")
+                      total))
       (goto-char (point-max))
       (delete-char -2)
       (insert "\n]}")
