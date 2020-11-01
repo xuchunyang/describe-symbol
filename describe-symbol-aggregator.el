@@ -48,8 +48,15 @@
                              collect name))
          (sym-names (sort sym-names #'string<))
          (sym-names
-          ;; `composition-function-table''s doc cannot be encoded in utf-8
-          (delete "composition-function-table" sym-names))
+          ;; `json-serialize' complains not utf-8
+          (dolist (sym '(composition-function-table
+                         language-info-alist
+                         tibetan-composable-pattern
+                         tibetan-precomposed-transcription-alist
+                         tibetan-precomposition-rule-alist
+                         tibetan-vowel-transcription-alist)
+                       sym-names)
+            (setq sym-names (delete (symbol-name sym) sym-names))))
          (total (length sym-names))
          (idx 0)
          (skipped 0)
