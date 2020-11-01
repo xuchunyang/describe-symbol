@@ -41,7 +41,7 @@ if (window.location.search) {
         return;
       }
       const { sym, doc } = j.data[0];
-      output.innerHTML = `<h1>${sym}</h1><p>${doc}</p>`;
+      output.innerHTML = `<h1>${sym}</h1><pre>${doc}</pre>`;
     })
     .catch((e) => {
       output.textContent = `Error: ${e}`;
