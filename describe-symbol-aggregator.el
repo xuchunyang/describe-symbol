@@ -34,6 +34,24 @@
 (require 'help-mode)                    ; `describe-symbol-backends'
 (require 'json)
 
+;; Load some libraries for its docstring
+(require 'auth-source)
+(require 'avl-tree)
+(require 'chart)
+(require 'checkdoc)
+(require 'eieio)
+(require 'ert)
+(require 'ewoc)
+(require 'let-alist)
+(require 'map nil t)
+(require 'radix-tree nil t)
+(require 'rx)
+(require 'seq)
+(require 'thunk nil t)
+(require 'tq)
+(require 'url)
+(require 'url-http)
+
 (defalias 'help-window-display-message (symbol-function 'ignore))
 
 ;; Make help show eval.c instead of C-source, it creates the " *DOC*" buffer,
