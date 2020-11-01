@@ -36,7 +36,7 @@
 
 (defalias 'help-window-display-message (symbol-function 'ignore))
 
-(defun describe-symbol-aggregator ()
+(defun describe-symbol-aggregator (&optional count)
   (let* ((all-sym-names (all-completions
                          ""
                          obarray
@@ -46,6 +46,9 @@
          (sym-names (cl-loop for name in all-sym-names
                              unless (string-match "--" name)
                              collect name))
+         (sym-names (if count
+                        (cl-subseq sym-names 0 count)
+                      sym-names))
          (sym-names (sort sym-names #'string<))
          (sym-names
           ;; `json-serialize' complains not utf-8
