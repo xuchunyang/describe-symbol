@@ -14,9 +14,6 @@ const DB_CONFIG = {
 };
 
 module.exports = (req, res) => {
-  // TODO search more than one symbols at a time
-  // console.log("=>", req.query.symbol);
-
   // TODO Add cache, cors headers
   if (!req.query.symbol) {
     res.status(400).json({ error: "Missing symbol argument: symbol" });
@@ -38,10 +35,14 @@ module.exports = (req, res) => {
   const Client = harperive.Client;
   const client = new Client(DB_CONFIG);
 
+  let symbols = Array.isArray(req.query.symbol)
+    ? req.query.symbol
+    : [req.query.symbol];
+  const conditions = symbols
+    .map((s) => SqlString.format(`sym = ?`, [s]))
+    .join(" OR ");
   const table = `${SCHEMA}.emacs_${emacsVersion.replace(/\./g, "_")}`;
-  const sql = SqlString.format(`SELECT sym, doc FROM ${table} WHERE sym = ?`, [
-    req.query.symbol,
-  ]);
+  const sql = `SELECT sym, doc FROM ${table} WHERE ${conditions}`;
   client.query(sql, (err, data) => {
     if (err) {
       res.status(500).json(err);
@@ -53,8 +54,9 @@ module.exports = (req, res) => {
       });
       return;
     }
-    const r = data.data[0];
-    r["emacs-version"] = emacsVersion;
-    res.status(200).json(r);
+    res.status(200).json({
+      "emacs-version": emacsVersion,
+      data: data.data,
+    });
   });
 };
