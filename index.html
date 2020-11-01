@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>*Help*</title>
+  </head>
+  <body>
+    <form>
+      <label for="version">Choose an Emacs version:</label>
+      <select name="version" id="version">
+        <option value="27.1" selected>27.1 (Newest)</option>
+        <option value="26.1">26.1</option>
+        <option value="25.1">25.1</option>
+      </select>
+      <label for="symbol">Describe symbol:</label>
+      <input name="symbol" id="symbol" type="text" placeholder="e.g., mapcan" required />
+    </form>
+    <div id="output"></div>
+    <script src="index.js"></script>
+  </body>
+</html>

@@ -2,3 +2,5 @@
 /emacs*.json
 /.env
 /node_modules/
+
+.vercel
