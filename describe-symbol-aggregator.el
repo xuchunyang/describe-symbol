@@ -36,6 +36,20 @@
 
 (defalias 'help-window-display-message (symbol-function 'ignore))
 
+;; Make help show eval.c instead of C-source, it creates the " *DOC*" buffer,
+;; otherwises `find-lisp-object-file-name' (will be used by the help commands)
+;; returns `C-source' rather "eval.c"
+;;
+;;   (find-lisp-object-file-name 'if (symbol-function 'if))
+;;
+(help-C-file-name (symbol-function 'if) 'subr)
+
+;; Prefer `grave' over ‘curve'
+(setq text-quoting-style 'grave)
+
+;; Avoid spliting the first line
+(setq-default fill-column 100)
+
 (defun describe-symbol-aggregator (&optional count)
   (let* ((all-sym-names (all-completions
                          ""
