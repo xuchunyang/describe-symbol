@@ -1,3 +1,14 @@
+// Cleaner URL, if user choose the default version, hide it in the url bar
+document.querySelector("form").onsubmit = (e) => {
+  const version = document.querySelector("#version").value;
+  const latest = "27.1";
+  if (version === latest) {
+    e.preventDefault();
+    const symbol = document.querySelector("#symbol").value;
+    window.location.href = `?symbol=${encodeURIComponent(symbol)}`;
+  }
+};
+
 if (window.location.search) {
   const output = document.querySelector("#output");
   const url = "/api/search" + window.location.search;
