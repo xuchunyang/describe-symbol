@@ -1,16 +1,36 @@
-// Cleaner URL, if user choose the default version, hide it in the url bar
-document.querySelector("form").onsubmit = (e) => {
-  const version = document.querySelector("#version").value;
+const versionSelect = document.querySelector("#version");
+const symbolInput = document.querySelector("#symbol");
+const form = document.querySelector("form");
+const output = document.querySelector("#output");
+
+// Hide latest (default) version in URL
+form.onsubmit = (e) => {
   const latest = "27.1";
-  if (version === latest) {
+  if (versionSelect.value === latest) {
     e.preventDefault();
-    const symbol = document.querySelector("#symbol").value;
+    const symbol = symbolInput.value;
     window.location.href = `?symbol=${encodeURIComponent(symbol)}`;
   }
 };
 
+
+const syncSearchParams = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const version = urlParams.get("version");
+  if (version && version !== versionSelect.value) {
+    versionSelect.value = version;
+  }
+
+  const symbol = urlParams.get("symbol");
+  if (symbol) {
+    symbolInput.value = symbol;
+  }
+};
+
 if (window.location.search) {
-  const output = document.querySelector("#output");
+  syncSearchParams();
+  
   const url = "/api/search" + window.location.search;
   output.textContent = `Loading ${url} ...`;
   fetch(url)
