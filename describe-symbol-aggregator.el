@@ -96,7 +96,7 @@
             (setq sym-names (delete (symbol-name sym) sym-names))))
          (total (length sym-names))
          (idx 0)
-         (skipped 0)
+         (skipped (list))
          (output-buffer (generate-new-buffer " *temp*"))
          (output-filename (format "emacs-%s-%s.json"
                                   emacs-version
@@ -141,9 +141,10 @@
       (insert "\n]}")
       (write-region nil nil output-filename)
       (message "Wrote to %s" output-filename))
-    (message "Total %d, Processed %d, Skipped %d, in %f seconds"
+    (message "Total %d, Processed %d, Skipped %d, %s, in %f seconds"
              total
-             (- total skipped)
+             (- total (length skipped))
+             (length skipped)
              skipped
              (float-time (time-since t0)))))
 
