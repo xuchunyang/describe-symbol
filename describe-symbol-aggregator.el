@@ -74,15 +74,22 @@
       (when (get-buffer "*Help*")
         (kill-buffer "*Help*"))
       (condition-case err
-          (progn (describe-symbol (intern-soft name))
-                 (let ((doc (with-current-buffer "*Help*"
-                              (buffer-substring-no-properties (point-min) (point-max)))))
-                   (with-current-buffer output-buffer
-                     (goto-char (point-max))
-                     (insert (funcall my-json-encode `((id . ,name)
-                                                       (doc . ,doc))))
-                     (insert ",\n")))
-                 t)
+          (progn
+            (describe-symbol (intern-soft name))
+            (let ((doc
+                   (with-current-buffer "*Help*"
+                     (let ((limit 10240))
+                       (if (> (point-max) limit)
+                           (concat
+                            (buffer-substring-no-properties (point-min) limit)
+                            (format "...(omitted %d chars)" (- (point-max) limit)))
+                         (buffer-substring-no-properties (point-min) (point-max)))))))
+              (with-current-buffer output-buffer
+                (goto-char (point-max))
+                (insert (funcall my-json-encode `((id . ,name)
+                                                  (doc . ,doc))))
+                (insert ",\n")))
+            t)
         (error
          (message "ERROR: %s, skip %s" (error-message-string err) name)
          (cl-incf skipped))))
