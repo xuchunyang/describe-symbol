@@ -29,6 +29,9 @@ const syncSearchParams = () => {
 };
 
 const search = (queryString) => {
+  const urlParams = new URLSearchParams(queryString);
+  const symbol = urlParams.get("symbol");
+  document.title = `(describe-symbol '${symbol})`;
   const url = "/api/search" + queryString;
   output.textContent = `Loading ${url} ...`;
   fetch(url)
@@ -44,7 +47,7 @@ const search = (queryString) => {
     .catch((e) => {
       output.textContent = `Error: ${e}`;
     });
-}
+};
 
 if (window.location.search) {
   syncSearchParams();
