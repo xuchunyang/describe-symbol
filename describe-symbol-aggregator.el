@@ -68,6 +68,21 @@
 ;; Avoid spliting the first line
 (setq-default fill-column 100)
 
+(setq debug-on-error t)
+
+;; TODO: link to source code, one idea is TAGS
+;; `emacs-version', `xref-location', `auth-source-backend'
+(defun describe-symbol-aggregator--find-delimiters ()
+  (let (res)
+    (goto-char (point-min))
+    (while (search-forward "\n" nil t)
+      (let ((val (get-text-property (point) 'face)))
+        (when (and val
+                   (listp val)
+                   (memq :inverse-video val))
+          (push (point) res))))
+    (nreverse res)))
+
 (defun describe-symbol-aggregator (&optional count)
   (let* ((all-sym-names (all-completions
                          ""
@@ -110,26 +125,33 @@
       (message "[%d/%d] %s" idx total name)
       (when (get-buffer "*Help*")
         (kill-buffer "*Help*"))
-      (condition-case err
-          (progn
-            (describe-symbol (intern-soft name))
-            (let ((doc
-                   (with-current-buffer "*Help*"
-                     (let ((limit 10240))
-                       (if (> (point-max) limit)
-                           (concat
-                            (buffer-substring-no-properties (point-min) limit)
-                            (format "...(omitted %d chars)" (- (point-max) limit)))
-                         (buffer-substring-no-properties (point-min) (point-max)))))))
-              (with-current-buffer output-buffer
-                (goto-char (point-max))
-                (insert (funcall my-json-encode `((sym . ,name)
-                                                  (doc . ,doc))))
-                (insert ",\n")))
-            t)
-        (error
-         (message "ERROR: %s, skip %s" (error-message-string err) name)
-         (cl-incf skipped))))
+      (when (condition-case err
+                (progn
+                  (describe-symbol (intern-soft name))
+                  t)
+              (error
+               (message "ERROR: %s, skip %s" (error-message-string err) name)
+               (push name skipped)
+               nil))
+        (let (doc delimiters)
+          (with-current-buffer "*Help*"
+            (setq
+             doc
+             (let ((limit 10240))
+               (if (> (point-max) limit)
+                   (concat
+                    (buffer-substring-no-properties (point-min) limit)
+                    (format "...(omitted %d chars)" (- (point-max) limit)))
+                 (buffer-substring-no-properties (point-min) (point-max)))))
+            (setq delimiters (describe-symbol-aggregator--find-delimiters)))
+          (with-current-buffer output-buffer
+            (goto-char (point-max))
+            (insert (funcall my-json-encode
+                             `((sym . ,name)
+                               (doc . ,doc)
+                               ,@(and delimiters
+                                      `((delimiters . ,(vconcat delimiters)))))))
+            (insert ",\n")))))
     (with-current-buffer output-buffer
       (goto-char (point-min))
       (insert (format "{\"emacs-version\": \"%s\", \"timestamp\": %s, \"count\": %d, \"data\": [\n"
