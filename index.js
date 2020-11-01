@@ -6,7 +6,7 @@ if (window.location.search) {
     .then((r) => r.json())
     .then((j) => {
       if ("error" in j) {
-        output("#output").textContent = `Error: ${j.error}`;
+        output.textContent = `Error: ${j.error}`;
         return;
       }
       output.innerHTML = `<h1>${j.sym}</h1><p>${j.doc}</p>`;
