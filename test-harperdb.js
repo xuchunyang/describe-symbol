@@ -1,6 +1,7 @@
 require("dotenv").config();
 const harperive = require("harperive");
 const fs = require("fs");
+const SqlString = require("sqlstring");
 
 const DB_CONFIG = {
   harperHost: process.env.DB_HOST,
@@ -46,5 +47,19 @@ client.searchByValue(
   (err, res) => {
     if (err) console.log(err);
     else console.log(res);
+  }
+);
+
+client.query(
+  SqlString.format(`select * from describe_symbol.emacs_25_1 where sym = ?`, [
+    "`",
+  ]),
+  (err, data) => {
+    if (err) {
+      console.log("ERROR:", err);
+      return;
+    }
+    console.log(data.data[0].sym);
+    console.log(data.data[0].doc);
   }
 );

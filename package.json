@@ -9,7 +9,10 @@
   "author": "",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "dotenv": "^8.2.0",
-    "harperive": "^1.0.2"
+    "dotenv": "^8.2.0"
+  },
+  "dependencies": {
+    "harperive": "^1.0.2",
+    "sqlstring": "^2.3.2"
   }
 }

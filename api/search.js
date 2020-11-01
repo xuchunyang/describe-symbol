@@ -1,4 +1,5 @@
 const harperive = require("harperive");
+const SqlString = require("sqlstring");
 
 const DB_URL = "https://cloud-1-xuchunyang.harperdbcloud.com";
 const DB_USER = "describe_symbol_reader";
@@ -13,6 +14,9 @@ const DB_CONFIG = {
 };
 
 module.exports = (req, res) => {
+  // TODO search more than one symbols at a time
+  // console.log("=>", req.query.symbol);
+
   // TODO Add cache, cors headers
   if (!req.query.symbol) {
     res.status(400).json({ error: "Missing symbol argument: symbol" });
@@ -34,27 +38,23 @@ module.exports = (req, res) => {
   const Client = harperive.Client;
   const client = new Client(DB_CONFIG);
 
-  client.searchByValue(
-    {
-      table: `emacs_${emacsVersion.replace(/\./g, "_")}`,
-      searchAttribute: "sym",
-      searchValue: req.query.symbol,
-      attributes: ["sym", "doc", "id"],
-    },
-    (err, data) => {
-      if (err) {
-        res.status(500).json(err);
-        return;
-      }
-      if (data.data.length === 0) {
-        res.status(404).json({
-          error: `Can't find ${req.query.symbol} in Emacs ${emacsVersion}`,
-        });
-        return;
-      }
-      const r = data.data[0];
-      r["emacs-version"] = emacsVersion;
-      res.status(200).json(r);
+  const table = `${SCHEMA}.emacs_${emacsVersion.replace(/\./g, "_")}`;
+  const sql = SqlString.format(`SELECT sym, doc FROM ${table} WHERE sym = ?`, [
+    req.query.symbol,
+  ]);
+  client.query(sql, (err, data) => {
+    if (err) {
+      res.status(500).json(err);
+      return;
     }
-  );
+    if (data.data.length === 0) {
+      res.status(404).json({
+        error: `Can't find ${req.query.symbol} in Emacs ${emacsVersion}`,
+      });
+      return;
+    }
+    const r = data.data[0];
+    r["emacs-version"] = emacsVersion;
+    res.status(200).json(r);
+  });
 };
