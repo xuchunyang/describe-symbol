@@ -3,16 +3,16 @@ const symbolInput = document.querySelector("#symbol");
 const form = document.querySelector("form");
 const output = document.querySelector("#output");
 
+const latestVersion = "27.1";
+
 // Hide latest (default) version in URL
 form.onsubmit = (e) => {
-  const latest = "27.1";
-  if (versionSelect.value === latest) {
+  if (versionSelect.value === latestVersion) {
     e.preventDefault();
     const symbol = symbolInput.value;
     window.location.href = `?symbol=${encodeURIComponent(symbol)}`;
   }
 };
-
 
 const syncSearchParams = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -28,10 +28,8 @@ const syncSearchParams = () => {
   }
 };
 
-if (window.location.search) {
-  syncSearchParams();
-  
-  const url = "/api/search" + window.location.search;
+const search = (queryString) => {
+  const url = "/api/search" + queryString;
   output.textContent = `Loading ${url} ...`;
   fetch(url)
     .then((r) => r.json())
@@ -46,4 +44,16 @@ if (window.location.search) {
     .catch((e) => {
       output.textContent = `Error: ${e}`;
     });
+}
+
+if (window.location.search) {
+  syncSearchParams();
+  search(window.location.search);
+} else {
+  const urlParams = new URLSearchParams();
+  if (versionSelect.value !== latestVersion) {
+    urlParams.set("version", versionSelect.value);
+  }
+  urlParams.set("symbol", symbolInput.value);
+  search("?" + urlParams);
 }
