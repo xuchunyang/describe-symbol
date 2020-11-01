@@ -107,6 +107,5 @@
              skipped
              (float-time (time-since t0)))))
 
-emacs-version
 (provide 'describe-symbol-aggregator)
 ;;; describe-symbol-aggregator.el ends here
