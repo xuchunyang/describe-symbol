@@ -42,7 +42,7 @@ module.exports = (req, res) => {
     .map((s) => SqlString.format(`sym = ?`, [s]))
     .join(" OR ");
   const table = `${SCHEMA}.emacs_${emacsVersion.replace(/\./g, "_")}`;
-  const sql = `SELECT sym, doc FROM ${table} WHERE ${conditions}`;
+  const sql = `SELECT sym, doc FROM ${table} WHERE ${conditions} LIMIT ${symbols.length}`;
   client.query(sql, (err, data) => {
     if (err) {
       res.status(500).json(err);
