@@ -24,11 +24,27 @@ client.describeSchema(
   cb
 );
 
-client.query(`select * from describe_symbol.emacs_25_1 where sym = 'cdr'`, (err, data) => {
-  if (err) {
-    console.log("ERROR:", err);
-    return;
+client.query(
+  `select * from describe_symbol.emacs_25_1 where sym = 'cdr'`,
+  (err, data) => {
+    if (err) {
+      console.log("ERROR:", err);
+      return;
+    }
+    console.log(data.data[0].sym);
+    console.log(data.data[0].doc);
   }
-  console.log(data.data[0].sym);
-  console.log(data.data[0].doc);
-});
+);
+
+client.searchByValue(
+  {
+    table: "emacs_27_1",
+    searchAttribute: "sym",
+    searchValue: "alist-get",
+    attributes: ["*"],
+  },
+  (err, res) => {
+    if (err) console.log(err);
+    else console.log(res);
+  }
+);
