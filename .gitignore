@@ -1,2 +1,4 @@
 *.elc
 /emacs*.json
+/.env
+/node_modules/

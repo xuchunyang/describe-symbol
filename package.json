@@ -1,0 +1,15 @@
+{
+  "name": "describe-symbol",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "harperive": "^1.0.2"
+  }
+}
