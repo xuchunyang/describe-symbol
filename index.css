@@ -1,5 +1,30 @@
+form {
+  margin-bottom: 1em;
+}
+
+input {
+  font-size: 100%;
+}
+
+.search-box {
+  font-size: 2rem;
+}
+
 footer {
   font-size: 90%;
   color: #333;
   font-style: italic;
+}
+
+
+#output {
+  text-align: left;
+  border: 1px solid #ccc;
+  box-shadow: 3px 3px 3px #eee;
+  padding: 1em;
+  margin: 1em;
+}
+
+pre {
+  font-size: 16px;
 }

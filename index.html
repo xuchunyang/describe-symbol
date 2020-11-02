@@ -3,30 +3,36 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Describe symbol: </title>
-    <link rel="stylesheet" href="index.css">
+    <title>describe-symbol</title>
+    <link rel="stylesheet" href="index.css" />
   </head>
   <body>
     <form>
-      <label for="version">Choose an Emacs version:</label>
-      <select name="version" id="version">
-        <option value="27.1" selected>27.1 (Newest)</option>
-        <option value="26.1">26.1</option>
-        <option value="25.1">25.1</option>
-      </select>
-      <label for="symbol">Describe symbol:</label>
-      <input
-        name="symbol"
-        id="symbol"
-        type="text"
-        placeholder="e.g., car"
-        value="car"
-        required
-      />
+      <div style="display: none;">
+        <label for="version">Choose an Emacs version:</label>
+        <select name="version" id="version">
+          <option value="27.1" selected>27.1 (Newest)</option>
+          <option value="26.1">26.1</option>
+          <option value="25.1">25.1</option>
+        </select>
+      </div>
+      <div class="search-box">
+        <label for="symbol">Describe symbol:</label>
+        <input
+          name="symbol"
+          id="symbol"
+          type="text"
+          placeholder="e.g., car"
+          value="car"
+          required
+        />
+      </div>
     </form>
     <div id="output"></div>
     <footer>
-      <p>Content of the documentation pages is part of GNU Emacs and available under GPL.</p>
+      <p>
+        The docstring on this page is part of GNU Emacs and available under GPL.
+      </p>
     </footer>
     <script src="index.js"></script>
     <a
