@@ -72,10 +72,10 @@
 
 ;; TODO: link to source code, one idea is TAGS
 ;; `emacs-version', `xref-location', `auth-source-backend'
-(defun describe-symbol-aggregator--find-delimiters (limit)
+(defun describe-symbol-aggregator--find-delimiters ()
   (let (res)
     (goto-char (point-min))
-    (while (search-forward "\n" limit t)
+    (while (search-forward "\n" nil t)
       (let ((val (get-text-property (point) 'face)))
         (when (and val
                    (listp val)
@@ -138,16 +138,18 @@
                (message "ERROR: %s, skip %s" (error-message-string err) name)
                (push name skipped)
                nil))
-        (let (doc delimiters (limit 10240))
+        (let (doc
+              delimiters
+              (limit 10240)             ; 10240 characters
+              truncated)
           (with-current-buffer "*Help*"
-            (setq
-             doc
-             (if (> (point-max) limit)
-                 (concat
-                  (buffer-substring-no-properties (point-min) limit)
-                  (format "...(omitted %d chars)" (- (point-max) limit)))
-               (buffer-substring-no-properties (point-min) (point-max))))
-            (setq delimiters (describe-symbol-aggregator--find-delimiters limit)))
+            (when (> (point-max) limit)
+              (setq truncated (- (point-max) limit))
+              (narrow-to-region (point-min) limit))
+            (setq doc (buffer-substring-no-properties (point-min) (point-max)))
+            (when truncated
+              (setq doc (concat doc (format "...(omitted %d chars)" truncated))))
+            (setq delimiters (describe-symbol-aggregator--find-delimiters)))
           (with-current-buffer output-buffer
             (goto-char (point-max))
             (insert (funcall my-json-encode
