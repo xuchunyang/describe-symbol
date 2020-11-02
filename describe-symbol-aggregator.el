@@ -105,6 +105,11 @@
                          tibetan-precomposed-transcription-alist
                          tibetan-precomposition-rule-alist
                          tibetan-vowel-transcription-alist
+                         ;; skip some errors in 26.1
+                         global-eldoc-mode-buffers ; not show error, but large buffer with lots of #<killed buffer>
+                         menu-bar-options-menu
+                         menu-bar-line-wrapping-menu
+                         bookmark-map
                          ;; 7.2M, emacs 25.1 takes too long
                          translation-table-vector)
                        sym-names)
