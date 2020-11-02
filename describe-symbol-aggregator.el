@@ -97,6 +97,39 @@ Info node `(elisp) Property Search'.
 URL `http://example.com'."
   nil)
 
+;; Emacs 25.1 lacks the argument REGEXP
+(defsubst describe-symbol-aggregator--string-trim-left (string &optional regexp)
+  "Trim STRING of leading string matching REGEXP.
+
+REGEXP defaults to \"[ \\t\\n\\r]+\"."
+  (if (string-match (concat "\\`\\(?:" (or regexp "[ \t\n\r]+") "\\)") string)
+      (substring string (match-end 0))
+    string))
+
+(defsubst describe-symbol-aggregator--string-trim-right (string &optional regexp)
+  "Trim STRING of trailing string matching REGEXP.
+
+REGEXP defaults to  \"[ \\t\\n\\r]+\"."
+  (let ((i (string-match-p (concat "\\(?:" (or regexp "[ \t\n\r]+") "\\)\\'")
+                           string)))
+    (if i (substring string 0 i) string)))
+
+(defun describe-symbol-aggregator--sans-path (path)
+  "Convert absolute PATH to relative path to emacs source root."
+  ;; car   "/Users/xcy/src/emacs/src/data.c"
+  ;; pcase "/Applications/Emacs.app/Contents/Resources/lisp/emacs-lisp/pcase.el.gz"
+  ;; when  "/Applications/Emacs.app/Contents/Resources/lisp/subr.el.gz"
+  (if (string-suffix-p ".c" path)
+      (concat "src/"
+              (describe-symbol-aggregator--string-trim-left
+               path (rx bos (* nonl) "/src/")))
+    (concat "lisp/"
+            (describe-symbol-aggregator--string-trim-right
+             (describe-symbol-aggregator--string-trim-left
+              path
+              (rx bos (* nonl) "/lisp/"))
+             (rx ".gz")))))
+
 ;; corresponding to `help-make-xrefs'
 (defun describe-symbol-aggregator--find-links ()
   "Extract links (that is useful for WWW) in the *Help* buffer.
@@ -138,31 +171,73 @@ Return a list of links, each link is an alist."
                           (when (/= limit pt)
                             pt)))))
         (let ((args (get-text-property (point) 'help-args)))
-          (let ((args (pcase-exhaustive type
-                        ('url args)     ; ("http://example.com")
-                        ('info args)    ; ("(elisp) Property Search")
-                        ('news (cl-loop for arg in args
-                                        if (stringp arg)
-                                        collect (file-name-nondirectory arg)
-                                        else
-                                        collect arg)) ; ("/Applications/Emacs.app/Contents/Resources/etc/NEWS.25" 47804)
+          (let ((data (pcase-exhaustive type
+                        ('url `((href . ,(car args))))  ; ("http://example.com")
+                        ('info `((node . ,(car args)))) ; ("(elisp) Property Search")
+                        ('news    ; ("/Applications/Emacs.app/Contents/Resources/etc/NEWS.25" 47804)
+                         (with-current-buffer (find-file-noselect (car args))
+                           `((file . ,(file-name-nondirectory buffer-file-name))
+                             (linum . ,(line-number-at-pos (cadr args)))))) 
                         ((or 'symbol 'function 'variable 'face 'cl-type)
-                         (cl-loop for arg in args
-                                  collect (format "%s" arg)))
-                        ((or 'function-def 'face-def 'variable-def 'cl-type-def)
-                         (cl-loop for arg in args
-                                  collect
-                                  (pcase arg
-                                    ((pred symbolp) (symbol-name arg))
-                                    ;; assume filepath to src
-                                    ((pred stringp) (file-name-nondirectory arg))
-                                    ;; this symbol turns into list, strange
-                                    ;; (describe-symbol (intern-soft "(setf seq-elt)"))
-                                    (_ (format "%s" arg))))))))
+                         nil)
+                        ('function-def
+                         ;; (car "src/data.c")
+                         ;; (when "/Applications/Emacs.app/Contents/Resources/lisp/subr.el")
+                         (let* ((fun (car args))
+                                (pair (condition-case err
+                                          (find-definition-noselect fun nil (cadr args))
+                                        (error (message "Error: %s" err)
+                                               nil)))
+                                (buf (car pair))
+                                (pos (cdr pair)))
+                           (when buf
+                             (with-current-buffer buf
+                               `((file . ,(describe-symbol-aggregator--sans-path buffer-file-name))
+                                 (linum . ,(line-number-at-pos pos)))))))
+                        ('cl-type-def
+                         ;; (avl-tree- "/Applications/Emacs.app/Contents/Resources/lisp/emacs-lisp/avl-tree.el" define-type)
+                         (let* ((fun (car args))
+                                (pair (condition-case err
+                                          (find-definition-noselect
+                                           fun (nth 2 args) (nth 1 args))
+                                        (error (message "Error: %s" err)
+                                               nil)))
+                                (buf (car pair))
+                                (pos (cdr pair)))
+                           (when buf
+                             (with-current-buffer buf
+                               `((file . ,(describe-symbol-aggregator--sans-path buffer-file-name))
+                                 (linum . ,(line-number-at-pos pos)))))))
+                        ('variable-def
+                         ;; (emacs-version "src/emacs.c")
+                         (let* ((var (car args))
+                                (pair (condition-case err
+                                          (find-definition-noselect var 'defvar)
+                                        (error (message "Error: %s" err)
+                                               nil)))
+                                (buf (car pair))
+                                (pos (cdr pair)))
+                           (when buf
+                             (with-current-buffer buf
+                               `((file . ,(describe-symbol-aggregator--sans-path buffer-file-name))
+                                 (linum . ,(line-number-at-pos pos)))))))
+                        ('face-def
+                         ;; (default "/Applications/Emacs.app/Contents/Resources/lisp/faces.el")
+                         (let* ((face (car args))
+                                (pair (condition-case err
+                                          (find-definition-noselect face 'defface (cadr args))
+                                        (error (message "Error: %s" err)
+                                               nil)))
+                                (buf (car pair))
+                                (pos (cdr pair)))
+                           (when buf
+                             (with-current-buffer buf
+                               `((file . ,(describe-symbol-aggregator--sans-path buffer-file-name))
+                                 (linum . ,(line-number-at-pos pos))))))))))
             (push `((beg . ,beg)
                     (end . ,end)
                     (type . ,(symbol-name type)) ; `json-serialize' does not like symbol
-                    (args . ,(vconcat args)))
+                    ,@(when data `((data . ,data))))
                   res)))))
     (nreverse res)))
 
@@ -181,7 +256,11 @@ list of symbols to use."
                              (cl-some (lambda (x) (funcall (nth 1 x) vv))
                                       describe-symbol-backends)))))
          (sym-names (cl-loop for name in all-sym-names
-                             unless (string-match "--" name)
+                             unless (string-match
+                                     (rx (or "--"
+                                             ;; Ignore (intern-soft "(setf seq-elt)")
+                                             " "))
+                                     name)
                              collect name))
          (sym-names (if count
                         (cl-subseq sym-names 0 count)
