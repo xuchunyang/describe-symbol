@@ -83,13 +83,20 @@
           (push (point) res))))
     (nreverse res)))
 
-(defun describe-symbol-aggregator (&optional count)
-  (let* ((all-sym-names (all-completions
-                         ""
-                         obarray
-                         (lambda (vv)
-                           (cl-some (lambda (x) (funcall (nth 1 x) vv))
-                                    describe-symbol-backends))))
+(defun describe-symbol-aggregator (&optional count symbols)
+  "Dump all symbols's documentation as a JSON file.
+
+COUNT and SYMBOLS are for debugging/testing, COUNT is a number
+and limits to the first specific number of symbols, SYMBOLS is a
+list of symbols to use."
+  (let* ((all-sym-names (if symbols
+                            (mapcar #'symbol-name symbols)
+                          (all-completions
+                           ""
+                           obarray
+                           (lambda (vv)
+                             (cl-some (lambda (x) (funcall (nth 1 x) vv))
+                                      describe-symbol-backends)))))
          (sym-names (cl-loop for name in all-sym-names
                              unless (string-match "--" name)
                              collect name))
