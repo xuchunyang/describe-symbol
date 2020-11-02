@@ -10,3 +10,8 @@ json: describe-symbol-aggregator.elc
 .PHONY: car
 car:
 	$(EMACS) -Q --batch -L . -l describe-symbol-aggregator --eval "(describe-symbol-aggregator nil '(car alist-get emacs-version auth-source-backend))"
+
+.PHONY: clean
+clean:
+	rm -f *.elc
+
