@@ -33,6 +33,7 @@
 (require 'help-fns)                     ; `describe-symbol' (added in 25.1)
 (require 'help-mode)                    ; `describe-symbol-backends'
 (require 'json)
+(require 'subr-x)                       ; `when-let'
 
 ;; Load some libraries for its docstring
 (require 'auth-source)
@@ -81,6 +82,88 @@
                    (listp val)
                    (memq :inverse-video val))
           (push (point) res))))
+    (nreverse res)))
+
+(defun describe-symbol-aggregator--dummy ()
+  "Dummy function for showing various links that docstring supports.
+For testing `describe-symbol-aggregator--find-links'.
+
+Some symbols such as `car' and `foobarbaz' (undefined).
+Variable `emacs-version',
+Function `emacs-version'.
+Option `user-full-name'.
+Face `default'.
+Info node `(elisp) Property Search'.
+URL `http://example.com'."
+  nil)
+
+;; corresponding to `help-make-xrefs'
+(defun describe-symbol-aggregator--find-links ()
+  "Extract links (that is useful for WWW) in the *Help* buffer.
+Return a list of links, each link is an alist."
+  (let (res)
+    (goto-char (point-min))
+    (while
+        ;; 27.1 supports NO-ERROR but 26.1/25.1 does not
+        (ignore-errors
+          (forward-button 1 nil nil))
+      (when-let ((category (get-text-property (point) 'category))
+                 (category-to-type-alist
+                  '(("help-news-button"          . news)
+                    ("help-symbol-button"        . symbol)
+                    ("help-variable-button"      . variable)
+                    ("help-function-button"      . function)
+                    ("help-face-button"          . face)
+                    ("help-info-button"          . info)
+                    ("help-url-button"           . url)
+                    ("help-function-def-button"  . function-def)
+                    ("help-variable-def-button"  . variable-def)
+                    ("help-face-def-button"      . face-def)
+                    ("cl-type-definition-button" . cl-type-def)
+                    ("cl-help-type-button"       . cl-type))) ; `cl-describe-type'
+                 ;; the value of `category' is uninterned symbol, so `eq' (thus `alist-get') does
+                 ;; not work, e.g.,
+                 ;;
+                 ;; (get-text-property (point) 'category)
+                 ;; => help-function-def-button
+                 ;;
+                 ;; (eq (get-text-property (point) 'category) 'help-function-def-button)
+                 ;; => nil
+                 ;;
+                 (type (assoc-default (symbol-name category) category-to-type-alist))
+                 (beg (point))
+                 (end (let ((limit (+ (point) 100)))
+                        ;; ignore links longer than 100 characters
+                        (let ((pt (next-property-change (point) nil limit)))
+                          (when (/= limit pt)
+                            pt)))))
+        (let ((args (get-text-property (point) 'help-args)))
+          (let ((args (pcase-exhaustive type
+                        ('url args)     ; ("http://example.com")
+                        ('info args)    ; ("(elisp) Property Search")
+                        ('news (cl-loop for arg in args
+                                        if (stringp arg)
+                                        collect (file-name-nondirectory arg)
+                                        else
+                                        collect arg)) ; ("/Applications/Emacs.app/Contents/Resources/etc/NEWS.25" 47804)
+                        ((or 'symbol 'function 'variable 'face 'cl-type)
+                         (cl-loop for arg in args
+                                  collect (format "%s" arg)))
+                        ((or 'function-def 'face-def 'variable-def 'cl-type-def)
+                         (cl-loop for arg in args
+                                  collect
+                                  (pcase arg
+                                    ((pred symbolp) (symbol-name arg))
+                                    ;; assume filepath to src
+                                    ((pred stringp) (file-name-nondirectory arg))
+                                    ;; this symbol turns into list, strange
+                                    ;; (describe-symbol (intern-soft "(setf seq-elt)"))
+                                    (_ (format "%s" arg))))))))
+            (push `((beg . ,beg)
+                    (end . ,end)
+                    (type . ,(symbol-name type)) ; `json-serialize' does not like symbol
+                    (args . ,(vconcat args)))
+                  res)))))
     (nreverse res)))
 
 (defun describe-symbol-aggregator (&optional count symbols)
@@ -147,6 +230,7 @@ list of symbols to use."
                nil))
         (let (doc
               delimiters
+              links
               (limit 10240)             ; 10240 characters
               truncated)
           (with-current-buffer "*Help*"
@@ -156,14 +240,17 @@ list of symbols to use."
             (setq doc (buffer-substring-no-properties (point-min) (point-max)))
             (when truncated
               (setq doc (concat doc (format "...(omitted %d chars)" truncated))))
-            (setq delimiters (describe-symbol-aggregator--find-delimiters)))
+            (setq delimiters (describe-symbol-aggregator--find-delimiters))
+            (setq links (describe-symbol-aggregator--find-links)))
           (with-current-buffer output-buffer
             (goto-char (point-max))
             (insert (funcall my-json-encode
-                             `((sym . ,name)
-                               (doc . ,doc)
-                               ,@(and delimiters
-                                      `((delimiters . ,(vconcat delimiters)))))))
+                             (append `((sym . ,name)
+                                       (doc . ,doc))
+                                     (and delimiters
+                                          `((delimiters . ,(vconcat delimiters))))
+                                     (and links
+                                          `((links . ,(vconcat links)))))))
             (insert ",\n")))))
     (with-current-buffer output-buffer
       (goto-char (point-min))
