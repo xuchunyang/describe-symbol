@@ -72,10 +72,10 @@
 
 ;; TODO: link to source code, one idea is TAGS
 ;; `emacs-version', `xref-location', `auth-source-backend'
-(defun describe-symbol-aggregator--find-delimiters ()
+(defun describe-symbol-aggregator--find-delimiters (limit)
   (let (res)
     (goto-char (point-min))
-    (while (search-forward "\n" nil t)
+    (while (search-forward "\n" limit t)
       (let ((val (get-text-property (point) 'face)))
         (when (and val
                    (listp val)
@@ -133,17 +133,16 @@
                (message "ERROR: %s, skip %s" (error-message-string err) name)
                (push name skipped)
                nil))
-        (let (doc delimiters)
+        (let (doc delimiters (limit 10240))
           (with-current-buffer "*Help*"
             (setq
              doc
-             (let ((limit 10240))
-               (if (> (point-max) limit)
-                   (concat
-                    (buffer-substring-no-properties (point-min) limit)
-                    (format "...(omitted %d chars)" (- (point-max) limit)))
-                 (buffer-substring-no-properties (point-min) (point-max)))))
-            (setq delimiters (describe-symbol-aggregator--find-delimiters)))
+             (if (> (point-max) limit)
+                 (concat
+                  (buffer-substring-no-properties (point-min) limit)
+                  (format "...(omitted %d chars)" (- (point-max) limit)))
+               (buffer-substring-no-properties (point-min) (point-max))))
+            (setq delimiters (describe-symbol-aggregator--find-delimiters limit)))
           (with-current-buffer output-buffer
             (goto-char (point-max))
             (insert (funcall my-json-encode
