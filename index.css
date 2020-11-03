@@ -1,3 +1,7 @@
+body {
+  line-height: 1.5;
+}
+
 form {
   margin-bottom: 1em;
 }
@@ -18,18 +22,25 @@ footer {
 }
 
 #output {
-  text-align: left;
+  padding: 1em;
+  margin: 1em;
+}
+
+#output p.doc {
+  white-space: pre-wrap;
+  background-color: #f9fafa;
+  border: 1px solid #ccc;
+  box-shadow: 3px 3px 3px #eee;
+  margin: 0;
+  padding: 1em;
+}
+
+#output pre.demo {
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;  
+  background-color: #f9fafa;
   border: 1px solid #ccc;
   box-shadow: 3px 3px 3px #eee;
   padding: 1em;
-  margin: 1em;
-  background-color: #f9fafa;
-}
-
-#output p {
-  line-height: 1.5;
-  white-space: pre-wrap;
-  margin: 0;
 }
 
 a {

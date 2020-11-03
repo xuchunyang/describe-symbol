@@ -134,8 +134,16 @@ const renderDoc = (sym, emacsVersion, data) => {
   }
   output.innerHTML = "";
   const para = document.createElement("p");
+  para.classList.add("doc");
   para.innerHTML = html;
   output.appendChild(para);
+
+  if ("demo" in data) {
+    const pre = document.createElement("pre");
+    pre.classList.add("demo");
+    pre.textContent = data.demo;
+    output.appendChild(pre);
+  }
 };
 
 const search = (queryString) => {
