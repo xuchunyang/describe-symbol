@@ -143,7 +143,7 @@ const search = (queryString) => {
   const symbol = urlParams.get("symbol");
   document.title = `${symbol} - describe-symbol`;
   const url = "/api/search" + queryString;
-  output.textContent = `Loading ${url} ...`;
+  output.textContent = `Searching ${symbol} ...`;
   fetch(url)
     .then((r) => r.json())
     .then((j) => {
