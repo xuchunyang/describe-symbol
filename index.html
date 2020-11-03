@@ -106,8 +106,8 @@
     <script>
       fetch("/api/list")
         .then((res) => res.json())
-        .then((symbols) => {
-          new Awesomplete(symbolInput, { list: symbols });
+        .then((json) => {
+          new Awesomplete(symbolInput, { list: json.symbols });
           document.addEventListener("awesomplete-selectcomplete", (x) => {
             handleSubmit();
           });
