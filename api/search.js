@@ -1,17 +1,7 @@
 const harperive = require("harperive");
 const SqlString = require("sqlstring");
 
-const DB_URL = "https://cloud-1-xuchunyang.harperdbcloud.com";
-const DB_USER = "describe_symbol_reader";
-const DB_PASS = "12345";
-const SCHEMA = "describe_symbol";
-
-const DB_CONFIG = {
-  harperHost: DB_URL,
-  username: DB_USER,
-  password: DB_PASS,
-  schema: SCHEMA,
-};
+const DB_CONFIG = require("./db-config");
 
 module.exports = (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -41,7 +31,7 @@ module.exports = (req, res) => {
   const conditions = symbols
     .map((s) => SqlString.format(`sym = ?`, [s]))
     .join(" OR ");
-  const table = `${SCHEMA}.emacs_${emacsVersion.replace(/\./g, "_")}`;
+  const table = `${DB_CONFIG.schema}.emacs_${emacsVersion.replace(/\./g, "_")}`;
   const sql = `SELECT * FROM ${table} WHERE ${conditions} LIMIT ${symbols.length}`;
   client.query(sql, (err, data) => {
     if (err) {
@@ -54,7 +44,7 @@ module.exports = (req, res) => {
       });
       return;
     }
-    res.setHeader("Cache-Control", `max-age=${3600 * 24}, s-maxage=${3600 * 24 * 30}`);
+    res.setHeader("Cache-Control", `max-age=${3600}, s-maxage=${3600 * 24 * 30}`);
     res.status(200).json({
       "emacs-version": emacsVersion,
       data: data.data,
