@@ -26,9 +26,10 @@ footer {
   background-color: #f9fafa;
 }
 
-pre {
-  /* from github */
-  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+#output p {
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
 }
 
 a {

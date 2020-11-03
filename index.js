@@ -133,9 +133,9 @@ const renderDoc = (sym, emacsVersion, data) => {
     }
   }
   output.innerHTML = "";
-  const pre = document.createElement("pre");
-  pre.innerHTML = html;
-  output.appendChild(pre);
+  const para = document.createElement("p");
+  para.innerHTML = html;
+  output.appendChild(para);
 };
 
 const search = (queryString) => {
