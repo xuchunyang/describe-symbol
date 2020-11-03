@@ -1,7 +1,7 @@
 const harperive = require("harperive");
 const SqlString = require("sqlstring");
 
-const DB_CONFIG = require("./db-config");
+const DB_CONFIG = require("../db-config");
 
 module.exports = (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

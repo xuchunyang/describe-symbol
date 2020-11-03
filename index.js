@@ -6,13 +6,14 @@ const output = document.querySelector("#output");
 const latestVersion = "27.1";
 
 // Hide latest (default) version in URL
-form.onsubmit = (e) => {
+const handleSubmit = (e) => {
   if (versionSelect.value === latestVersion) {
-    e.preventDefault();
+    e && e.preventDefault();
     const symbol = symbolInput.value;
     window.location.href = `?symbol=${encodeURIComponent(symbol)}`;
   }
-};
+}
+form.onsubmit = handleSubmit;
 
 const syncSearchParams = () => {
   const urlParams = new URLSearchParams(window.location.search);

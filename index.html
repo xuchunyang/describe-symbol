@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>describe-symbol</title>
     <link rel="stylesheet" href="index.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css"
+      integrity="sha512-RT/9M3vzjYojy97YiNTZbyrQ4nJ+gNoinZKTGSVvLITijfQIAIDNicUe+U2KaeOWo9j7IbRzRisx/7eglOc+wA=="
+      crossorigin="anonymous"
+    />
   </head>
   <body>
     <form>
@@ -34,7 +40,6 @@
         The above docstring is part of GNU Emacs and available under GPL.
       </p>
     </footer>
-    <script src="index.js"></script>
     <a
       href="https://github.com/xuchunyang/describe-symbol"
       class="github-corner"
@@ -92,5 +97,24 @@
         }
       }
     </style>
+    <script src="index.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"
+      integrity="sha512-HcBl0GSJvt4Qecm4srHapirUx0HJDi2zYXm6KUKNNUGdTIN9cBwakVZHWmRVj4MKgy1AChqhWGYcMDbRKgO0zg=="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      fetch("/api/list")
+        .then((res) => res.json())
+        .then((symbols) => {
+          new Awesomplete(symbolInput, { list: symbols });
+          document.addEventListener("awesomplete-selectcomplete", (x) => {
+            handleSubmit();
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    </script>
   </body>
 </html>

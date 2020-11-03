@@ -1,4 +1,4 @@
-const DB_CONFIG = require("./db-config");
+const DB_CONFIG = require("../db-config");
 const harperive = require("harperive");
 
 const Client = harperive.Client;
@@ -28,11 +28,12 @@ module.exports = (req, res) => {
       res.status(200).json(data);
       return;
     }
-    const symbols = data.data.map((x) => x.sym);
+    // work-around harperdb bug, see issue #1
+    const symbols = data.data.map((x) => x.sym).filter(x => x !== null);
     const count = symbols.length;
     res.setHeader(
       "Cache-Control",
-      `max-age=${3600}, s-maxage=${3600 * 24 * 30}`
+      `max-age=${3600 * 12}, s-maxage=${3600 * 24 * 30}`
     );
     res.status(200).json({
       count,
