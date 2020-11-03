@@ -8,8 +8,8 @@
   </head>
   <body>
     <form>
-      <div style="display: none;">
-        <label for="version">Choose an Emacs version:</label>
+      <div>
+        <label for="version">Change Emacs version:</label>
         <select name="version" id="version">
           <option value="27.1" selected>27.1 (Newest)</option>
           <option value="26.1">26.1</option>
@@ -21,7 +21,7 @@
         <input
           name="symbol"
           id="symbol"
-          type="text"
+          type="search"
           placeholder="e.g., car"
           value="car"
           required
@@ -31,7 +31,7 @@
     <div id="output"></div>
     <footer>
       <p>
-        The docstring on this page is part of GNU Emacs and available under GPL.
+        The above docstring is part of GNU Emacs and available under GPL.
       </p>
     </footer>
     <script src="index.js"></script>

@@ -132,7 +132,7 @@ const renderDoc = (sym, emacsVersion, data) => {
       html += str2html(str);
     }
   }
-  output.innerHTML = `<h2>${sym}</h2>`;
+  output.innerHTML = "";
   const pre = document.createElement("pre");
   pre.innerHTML = html;
   output.appendChild(pre);

@@ -7,7 +7,8 @@ input {
 }
 
 .search-box {
-  font-size: 2rem;
+  text-align: center;
+  font-size: 1.5rem;
 }
 
 footer {
@@ -16,15 +17,29 @@ footer {
   font-style: italic;
 }
 
-
 #output {
   text-align: left;
   border: 1px solid #ccc;
   box-shadow: 3px 3px 3px #eee;
   padding: 1em;
   margin: 1em;
+  background-color: #f9fafa;
 }
 
 pre {
-  font-size: 16px;
+  /* from github */
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link,
+a:visited {
+  color: #0366d6;
+}
+
+a:hover {
+  text-decoration: underline;
 }
