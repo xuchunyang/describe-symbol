@@ -53,14 +53,16 @@ const node2link = (node) => {
   const manual = match[1] || "emacs";
   const section = match[2] || "Top";
   // refer chunyang-org-info-map-anchor-url
-  const basename = [...section.replace(/\s+/g, " ")].map(char => {
-    if (/[a-zA-Z0-9]/.test(char)) return char;
-    if (char === " ") return "-";
-    const codepoint = char.charCodeAt(0);
-    return "_" + codepoint.toString(16).padStart(4, "0");
-  }).join("");
-  return `https://www.gnu.org/software/emacs/manual/html_node/${manual}/${basename}.html`
-}
+  const basename = [...section.replace(/\s+/g, " ")]
+    .map((char) => {
+      if (/[a-zA-Z0-9]/.test(char)) return char;
+      if (char === " ") return "-";
+      const codepoint = char.charCodeAt(0);
+      return "_" + codepoint.toString(16).padStart(4, "0");
+    })
+    .join("");
+  return `https://www.gnu.org/software/emacs/manual/html_node/${manual}/${basename}.html`;
+};
 
 const renderDoc = (sym, emacsVersion, data) => {
   for (const link of data.links) {
@@ -109,7 +111,7 @@ const renderDoc = (sym, emacsVersion, data) => {
           {
             const { node } = found.data;
             const href = node2link(node);
-            html += `<a href="${href}">${str}</a>`;          
+            html += `<a href="${href}">${str}</a>`;
           }
           break;
         case "function-def":
