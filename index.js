@@ -5,10 +5,11 @@ const output = document.querySelector("#output");
 
 const latestVersion = "27.1";
 
+// FIXME stop trick the URL
 // Hide latest (default) version in URL
 const handleSubmit = (e) => {
   if (versionSelect.value === latestVersion) {
-    e && e.preventDefault();
+    e.preventDefault();
     const symbol = symbolInput.value;
     window.location.href = `?symbol=${encodeURIComponent(symbol)}`;
   }

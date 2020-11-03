@@ -108,8 +108,9 @@
         .then((res) => res.json())
         .then((json) => {
           new Awesomplete(symbolInput, { list: json.symbols });
-          document.addEventListener("awesomplete-selectcomplete", () => {
-            handleSubmit();
+          document.addEventListener("awesomplete-selectcomplete", (o) => {
+            console.log("on awesomplete-selectcomplete event", o);
+            form.submit();
           });
         })
         .catch((err) => {
