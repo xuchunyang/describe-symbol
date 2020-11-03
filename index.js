@@ -12,7 +12,7 @@ const handleSubmit = (e) => {
     const symbol = symbolInput.value;
     window.location.href = `?symbol=${encodeURIComponent(symbol)}`;
   }
-}
+};
 form.onsubmit = handleSubmit;
 
 const syncSearchParams = () => {
@@ -120,9 +120,13 @@ const renderDoc = (sym, emacsVersion, data) => {
         case "face-def":
         case "cl-type-def":
           {
-            const { file, linum } = found.data;
-            const href = `https://github.com/emacs-mirror/emacs/blob/emacs-${emacsVersion}/${file}#L${linum}`;
-            html += `<a href="${href}">${str}</a>`;
+            if ("data" in found) {
+              const { file, linum } = found.data;
+              const href = `https://github.com/emacs-mirror/emacs/blob/emacs-${emacsVersion}/${file}#L${linum}`;
+              html += `<a href="${href}">${str}</a>`;
+            } else {
+              html += str; // work-around for #2
+            }
           }
           break;
         default:
