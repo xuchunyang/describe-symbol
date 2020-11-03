@@ -19,17 +19,19 @@ module.exports = (req, res) => {
     return;
   }
   const table = `${DB_CONFIG.schema}.emacs_${emacsVersion.replace(/\./g, "_")}`;
-  client.query(`SELECT sym from ${table}`, (err, data) => {
+  // FIXME work-around harperdb bug, see issue #1  
+  client.query(`SELECT sym from ${table} where sym is not null order by sym limit 10`, (err, data) => {
     if (err) {
       res.status(500).json(err);
       return;
     }
     if (data.statusCode !== 200) {
-      res.status(200).json(data);
+      res.status(data.statusCode).json(data);
       return;
     }
-    // work-around harperdb bug, see issue #1
-    const symbols = data.data.map((x) => x.sym).filter(x => x !== null);
+    console.log(data);
+
+    const symbols = data.data.map((x) => x.sym);
     const count = symbols.length;
     res.setHeader(
       "Cache-Control",

@@ -104,11 +104,11 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      fetch("/api/list")
+      fetch("https://describe-symbol.vercel.app/api/list")
         .then((res) => res.json())
         .then((json) => {
           new Awesomplete(symbolInput, { list: json.symbols });
-          document.addEventListener("awesomplete-selectcomplete", (x) => {
+          document.addEventListener("awesomplete-selectcomplete", () => {
             handleSubmit();
           });
         })
