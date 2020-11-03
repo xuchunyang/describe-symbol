@@ -13,6 +13,7 @@ builtin symbols' documentation using it and provides a web interface.
 - Supports Emacs 25.1, 26.1 and 27.1
 - Clickable links to source file, info manual etc, similar to Emacs
 - Show code demo from [elisp-demos.el](https://github.com/xuchunyang/elisp-demos) alongside the docstring
+- Autocomplete
 
 ## Build
 
