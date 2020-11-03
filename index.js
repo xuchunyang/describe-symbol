@@ -28,6 +28,114 @@ const syncSearchParams = () => {
   }
 };
 
+const str2html = (string) => {
+  const div = document.createElement("div");
+  div.textContent = string;
+  return div.innerHTML;
+};
+
+// (elisp) Pattern-Matching Conditional
+// https://www.gnu.org/software/emacs/manual/html_node/elisp/Pattern_002dMatching-Conditional.html
+//
+// (elisp) Property Search
+// https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Search.html
+//
+// (emacs)Parentheses
+// https://www.gnu.org/software/emacs/manual/html_node/emacs/Parentheses.html
+//
+// (cl)Loop Facility
+// https://www.gnu.org/software/emacs/manual/html_node/cl/Loop-Facility.html
+//
+// refer chunyang-Info-get-current-node-html
+const node2link = (node) => {
+  node = node.trim();
+  const match = node.match(/^(?:\((.+)\))?\s*(.*)\s*$/);
+  const manual = match[1] || "emacs";
+  const section = match[2] || "Top";
+  // refer chunyang-org-info-map-anchor-url
+  const basename = [...section.replace(/\s+/g, " ")].map(char => {
+    if (/[a-zA-Z0-9]/.test(char)) return char;
+    if (char === " ") return "-";
+    const codepoint = char.charCodeAt(0);
+    return "_" + codepoint.toString(16).padStart(4, "0");
+  }).join("");
+  return `https://www.gnu.org/software/emacs/manual/html_node/${manual}/${basename}.html`
+}
+
+const renderDoc = (sym, emacsVersion, data) => {
+  for (const link of data.links) {
+    link.beg--;
+    link.end--;
+  }
+  if (data.delimiters === null) {
+    data.delimiters = [];
+  }
+  data.delimiters = data.delimiters.map((pos) => {
+    return {
+      beg: pos - 1,
+      end: pos,
+      type: "delimiter",
+    };
+  });
+  const markups = data.links
+    .concat(data.delimiters)
+    .sort((a, b) => a.beg - b.beg);
+  const idxs = [
+    0,
+    ...markups
+      .map(({ beg, end }) => [beg, end])
+      .reduce((acc, elt) => acc.concat(elt)),
+    data.doc.length,
+  ];
+  let html = "";
+  for (let i = 0; i < idxs.length - 1; i++) {
+    const beg = idxs[i];
+    const end = idxs[i + 1];
+    const str = data.doc.slice(beg, end);
+    const found = markups.find((elt) => elt.beg === beg);
+    if (found) {
+      switch (found.type) {
+        case "delimiter":
+          html += "<hr>";
+          break;
+        case "news":
+          {
+            const { file, linum } = found.data;
+            const href = `https://github.com/emacs-mirror/emacs/blob/emacs-${emacsVersion}/etc/${file}#L${linum}`;
+            html += `<a href="${href}">${str}</a>`;
+          }
+          break;
+        case "info":
+          {
+            const { node } = found.data;
+            const href = node2link(node);
+            html += `<a href="${href}">${str}</a>`;          
+          }
+          break;
+        case "function-def":
+        case "variable-def":
+        case "face-def":
+        case "cl-type-def":
+          {
+            const { file, linum } = found.data;
+            const href = `https://github.com/emacs-mirror/emacs/blob/emacs-${emacsVersion}/${file}#L${linum}`;
+            html += `<a href="${href}">${str}</a>`;
+          }
+          break;
+        default:
+          html += `<a href="/?symbol=${encodeURIComponent(str)}">${str}</a>`;
+          break;
+      }
+    } else {
+      html += str2html(str);
+    }
+  }
+  output.innerHTML = `<h2>${sym}</h2>`;
+  const pre = document.createElement("pre");
+  pre.innerHTML = html;
+  output.appendChild(pre);
+};
+
 const search = (queryString) => {
   const urlParams = new URLSearchParams(queryString);
   const symbol = urlParams.get("symbol");
@@ -42,7 +150,7 @@ const search = (queryString) => {
         return;
       }
       const { sym, doc } = j.data[0];
-      output.innerHTML = `<h2>${sym}</h2><pre>${doc}</pre>`;
+      renderDoc(sym, j["emacs-version"], j.data[0]);
     })
     .catch((e) => {
       output.textContent = `Error: ${e}`;
