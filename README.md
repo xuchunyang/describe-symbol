@@ -20,7 +20,8 @@ builtin symbols' documentation using it and provides a web interface.
 To build the database:
 
 1. Run `make json EMACS=25.1` to dump documentation into a JSON file.
-2. Run `node json-to-harperdb.js` to upload the JSON file to HarperDB, a `.env` file like the
+2. Run `node add-elisp-demos-to-json.js` to add elisp-demos to the JSON file.
+3. Run `node json-to-harperdb.js` to upload the JSON file to HarperDB, a `.env` file like the
    following will be required
 
 ```conf
