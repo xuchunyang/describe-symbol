@@ -20,7 +20,7 @@ module.exports = (req, res) => {
   }
   const table = `${DB_CONFIG.schema}.emacs_${emacsVersion.replace(/\./g, "_")}`;
   // FIXME work-around harperdb bug, see issue #1  
-  client.query(`SELECT sym from ${table} where sym is not null order by sym limit 10`, (err, data) => {
+  client.query(`SELECT sym from ${table} where sym is not null order by sym`, (err, data) => {
     if (err) {
       res.status(500).json(err);
       return;
