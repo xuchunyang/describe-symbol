@@ -138,7 +138,7 @@ const renderDoc = (sym, emacsVersion, data) => {
   para.innerHTML = html;
   output.appendChild(para);
 
-  if ("demo" in data) {
+  if ("demo" in data && data.demo !== null) {
     const pre = document.createElement("pre");
     pre.classList.add("demo");
     pre.textContent = data.demo;
