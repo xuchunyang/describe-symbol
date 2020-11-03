@@ -19,8 +19,8 @@ module.exports = (req, res) => {
     return;
   }
   const table = `${DB_CONFIG.schema}.emacs_${emacsVersion.replace(/\./g, "_")}`;
-  // FIXME work-around harperdb bug, see issue #1  
-  client.query(`SELECT sym from ${table} where sym is not null order by sym`, (err, data) => {
+
+  client.query(`SELECT sym from ${table} order by sym`, (err, data) => {
     if (err) {
       res.status(500).json(err);
       return;
@@ -29,9 +29,12 @@ module.exports = (req, res) => {
       res.status(data.statusCode).json(data);
       return;
     }
-    console.log(data);
 
-    const symbols = data.data.map((x) => x.sym);
+    // FIXME work-around harperdb bug, see issue #1
+    const symbols = data.data
+      .map((x) => x.sym)
+      .filter((sym) => sym !== null && sym !== undefined);
+    console.log(symbols.length);
     const count = symbols.length;
     res.setHeader(
       "Cache-Control",
