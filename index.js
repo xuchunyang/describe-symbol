@@ -144,6 +144,10 @@ const renderDoc = (sym, emacsVersion, data) => {
   para.innerHTML = html;
   output.appendChild(para);
 
+  if (data.info) {
+    para.insertAdjacentHTML("beforeend", `<br><a href="${data.info}">View in manual</a>`);
+  }
+
   if ("demo" in data && data.demo !== null) {
     const pre = document.createElement("pre");
     pre.classList.add("demo");
