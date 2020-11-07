@@ -26,6 +26,7 @@ const getHtml = async (fileOrUrl) => {
 
 const getJson = async (fileOrUrl) => {
   const html = await getHtml(fileOrUrl);
+  const t0 = new Date();
   const $ = cheerio.load(html);
   const result = {};
   $("code", "a").each((i, elem) => {
@@ -33,6 +34,8 @@ const getJson = async (fileOrUrl) => {
     const href = $(elem.parent).attr("href");
     result[symbol] = href;
   });
+  const cost = new Date() - t0;
+  console.log(`It takes ${cost / 1000}s to parse ${fileOrUrl}`);
   return result;
 };
 
@@ -57,7 +60,9 @@ const getJson = async (fileOrUrl) => {
   const indexes = [
     "https://www.gnu.org/software/emacs/manual/html_node/emacs/Command-Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/emacs/Variable-Index.html",
-    "https://www.gnu.org/software/emacs/manual/html_node/elisp/Index.html",
+    // Not sure why, it takes forever to download this file, so I downloaded it manually
+    // "https://www.gnu.org/software/emacs/manual/html_node/elisp/Index.html",
+    "Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/cl/Function-Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/cl/Variable-Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/org/Command-and-Function-Index.html",
@@ -67,15 +72,7 @@ const getJson = async (fileOrUrl) => {
     "https://www.gnu.org/software/emacs/manual/html_node/widget/Index.html",
   ];
 
-  let result = {};
-  for (let i = 0; i < indexes.length; i++) {
-    const url = indexes[i];
-    console.log(`${i}. Processing ${url} ...`);
-    const json = await getJson(url);
-    result = Object.assign(result, json);
-    console.log(`Found ${Object.keys(json).length} symbols`);
-    console.log(`${i}. Processing ${url} ...done`);
-  }
-
+  const values = await Promise.all(indexes.map(getJson));
+  const result = Object.assign(...values);
   fs.writeFileSync("info-index.json", JSON.stringify(result, null, 2));
 })();
