@@ -32,7 +32,8 @@ const getJson = async (fileOrUrl) => {
   $("code", "a").each((i, elem) => {
     const symbol = $(elem).text();
     const href = $(elem.parent).attr("href");
-    result[symbol] = href;
+    const absHref = new URL(href, fileOrUrl).href;
+    result[symbol] = absHref;
   });
   const cost = new Date() - t0;
   console.log(`It takes ${cost / 1000}s to parse ${fileOrUrl}`);
@@ -61,8 +62,8 @@ const getJson = async (fileOrUrl) => {
     "https://www.gnu.org/software/emacs/manual/html_node/emacs/Command-Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/emacs/Variable-Index.html",
     // Not sure why, it takes forever to download this file, so I downloaded it manually
-    // "https://www.gnu.org/software/emacs/manual/html_node/elisp/Index.html",
-    "Index.html",
+    "https://www.gnu.org/software/emacs/manual/html_node/elisp/Index.html",
+    // "Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/cl/Function-Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/cl/Variable-Index.html",
     "https://www.gnu.org/software/emacs/manual/html_node/org/Command-and-Function-Index.html",
