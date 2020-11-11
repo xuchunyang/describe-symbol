@@ -9,8 +9,6 @@ form {
 input {
   font-size: inherit;
   padding: 5px;
-  width: 20em;
-  max-width: 100%;
 }
 
 .search-box {
@@ -62,5 +60,11 @@ a:hover {
 @media (max-width: 1000px) {
   .search-box {
     margin-top: 1em;
+  }
+}
+
+@media (min-width: 500px) {
+  input {
+    width: 20em;
   }
 }
