@@ -68,3 +68,10 @@ a:hover {
     width: 20em;
   }
 }
+
+@media (max-width: 500px) {
+  #output {
+    margin: 0;
+    padding: 0;
+  }
+}
