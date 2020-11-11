@@ -7,12 +7,15 @@ form {
 }
 
 input {
-  font-size: 100%;
+  font-size: inherit;
+  padding: 5px;
+  width: 20em;
+  max-width: 100%;
 }
 
 .search-box {
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.4em;
 }
 
 footer {
@@ -54,4 +57,10 @@ a:visited {
 
 a:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 1000px) {
+  .search-box {
+    margin-top: 1em;
+  }
 }
